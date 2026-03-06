@@ -16,5 +16,9 @@ yargs(hideBin(process.argv)).command(
     {},
     initRepo
 )
+.command("add <file>" , "add a file to the repository",
+    (yargs=>{
+        
+    }),addRepo)
 .demandCommand(1,"you need at least one command")
 .help().argv;
