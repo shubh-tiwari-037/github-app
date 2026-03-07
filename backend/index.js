@@ -34,7 +34,9 @@ yargs(hideBin(process.argv)).command(
             type:"string"
         })
     },
-    commitRepo
+    (argv)=>{
+    commitRepo(argv.message)
+}
 )
 .command("push","push commits to s3",{},pushRepo)
 .command("pull","pull commits to s3",{},pullRepo)
