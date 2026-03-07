@@ -18,7 +18,33 @@ yargs(hideBin(process.argv)).command(
 )
 .command("add <file>" , "add a file to the repository",
     (yargs=>{
-        
+      yargs.positional("file",{
+        describe:"File to add the staging area",
+        type:"string",
+      })  
     }),addRepo)
+.command("commit <message>",
+    "commit the staged file",
+    (yargs)=>{
+        yargs.positional("message",{
+            describe:"commit message",
+            type:"string"
+        })
+    },
+    commitRepo
+)
+.command("push","push commits to s3",{},pushRepo)
+.command("pull","pull commits to s3",{},pullRepo)
+.command(
+     "revert <commitID>",
+    "revert to a specific commit",
+    (yargs)=>{
+        yargs.positional("commitID",{
+            describe:"commit ID to revert to",
+            type:"string"
+        })
+    } ,
+    revertRepo
+)
 .demandCommand(1,"you need at least one command")
 .help().argv;
