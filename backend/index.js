@@ -1,4 +1,10 @@
 
+const express = require("express");
+const dotenv=require("dotenv");
+const mongoose=require("mongoose");
+const cors = require("cors");
+const http=require("http");
+const bodyParser=require("body-parser");
 
 const yargs = require("yargs");
 const { hideBin } = require("yargs/helpers");
@@ -10,7 +16,11 @@ const { pushRepo } = require("./controllers/push");
 const { pullRepo } = require("./controllers/pull");
 const { revertRepo } = require("./controllers/revert");
 
-yargs(hideBin(process.argv)).command(
+dotenv.config();
+
+yargs(hideBin(process.argv))
+.command("strt","Starts a new server",{},startServer)
+.command(
     "init",
     "initilise new repository",
     {},
@@ -49,7 +59,24 @@ yargs(hideBin(process.argv)).command(
             type:"string"
         })
     } ,
-    revertRepo
+       (argv)=>{
+    revertRepo(argv.commitID)
+}
 )
 .demandCommand(1,"you need at least one command")
 .help().argv;
+
+
+function startServer(){
+    const app=express()
+    const port = process.env.PORT ||3000;
+
+    app.use(bodyParser.json());
+    app.use(express.json())
+
+    const mongoURI= process.env.MONGODB_URI;
+
+    mongoose.connect(mongoURI)
+    .then(()=> console.log("Mongodb connect!"))
+    .catch((err)=> console.error("unable to connect db",err));
+}
