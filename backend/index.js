@@ -5,6 +5,9 @@ const mongoose=require("mongoose");
 const cors = require("cors");
 const http=require("http");
 const bodyParser=require("body-parser");
+const {Server} =require("socket.io")
+
+const mainRouter= require("./routes/main.router");
 
 const yargs = require("yargs");
 const { hideBin } = require("yargs/helpers");
@@ -19,7 +22,7 @@ const { revertRepo } = require("./controllers/revert");
 dotenv.config();
 
 yargs(hideBin(process.argv))
-.command("strt","Starts a new server",{},startServer)
+.command("start","Starts a new server",{},startServer)
 .command(
     "init",
     "initilise new repository",
@@ -79,4 +82,39 @@ function startServer(){
     mongoose.connect(mongoURI)
     .then(()=> console.log("Mongodb connect!"))
     .catch((err)=> console.error("unable to connect db",err));
+
+    app.use(cors({origin:"*"}))
+    
+    app.use("/",mainRouter);
+    
+
+    let user="test";
+    const httpServer= http.createServer(app);
+    const io=new Server(httpServer,{
+        cors:{
+            origin:"*",
+            methods:["GET","POST"],
+        }
+    });
+
+    io.on("connection",(socket)=>{
+        socket.on("joinRoom",(userID)=>{
+            user=userID;
+            console.log("========");
+             console.log(user)
+              console.log("========")
+              socket.join(userID);
+        })
+    });
+
+    const db=mongoose.connection;
+    db.once("open",async()=>{
+        console.log("CRUD operations called");
+        // crud operations
+    });
+
+    httpServer.listen(port,()=>{
+        console.log(`Server is listening on port ${port}`);
+    });
+
 }
